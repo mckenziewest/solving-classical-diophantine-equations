@@ -1,8 +1,10 @@
 # Solving Classical Diophantine Equations
 
 ## Description
-This Fork intends to generalize portions of Matschke's work beyond Q.
+This fork intends to generalize portions of Matschke's work beyond Q.
 We create this fork to generate a computer trail of the generalization.
+The original repository was written using Sage in Python 2.
+Also among our goals is to update relevant components to Python 3.
 
 ### Contents
 
