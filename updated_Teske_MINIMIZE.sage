@@ -133,3 +133,49 @@ def teskeMinimize(S, B, goth_p, n):
         B_copy = teskeMinimizeAtJ(S, B_copy, j, goth_p, n,prime_divisors)
     return B_copy
 
+def teske_diag(mu_vec, goth_p, n):
+    r'''
+    INPUT:
+    - ``mu_vec`` - a vector of generators of the S-unit group that are coprime to ``goth_p``
+    - ``goth_p`` - a place at which we're performing this task
+    - ``n`` - the power of ``goth_p`` which we're quotienting the unit group by
+    OUTPUT:
+    a list of multiplicative orders of the elements of ``mu_vec`` when quotienting the set by ``goth_p**n``
+    '''
+    h = []
+    for mui in mu_vec:
+        h.append( unit_order_mod_prime_power(mui, goth_p, n))
+    return h
+
+def unit_order_mod_prime_power(curr_mu, gothp, n):
+    # returns the mult. order of curr_mu inside OKSx \cap (1 + gothp^n) 
+    old_d = 0
+    K = curr_mu.parent()
+    elt_to_test = K(1)
+    q = gothp.norm()
+    list_of_divs = divisors( q^(n-1)*(q-1) )
+    for d in list_of_divs[:-1]:
+        elt_to_test *= curr_mu^(d - old_d)
+        eltshift1 = elt_to_test - 1
+        if eltshift1.valuation(gothp) >= n:
+            return d
+        old_d = d
+    return list_of_divs[-1]
+
+## An example of using these items
+# from sage.rings.number_field.S_unit_solver import mus, possible_mu0s
+# K.<a> = NumberField(x^3 +4*x - 1)
+# S = K.primes_above(110)
+# OKSx = UnitGroup(K,S=tuple(S))
+# goth_p = S[1]
+# mu = [possible_mu0s(OKSx, S[1])[1]]+mus(OKSx, S[1])
+# n = 6
+# hvec = teske_diag(mu, goth_p, n)
+# B = diagonal_matrix(hvec)
+# new_B=teskeMinimize(mu, B, goth_p, n)
+# new_mu = []
+# for row in range(6):
+#     myrel = prod(OKSx(mu[j])^new_B[row][j] for j in range(6))
+#     new_mu.append(myrel)
+# for j in range(6):
+#     print( (new_mu[j]).exponents() )
