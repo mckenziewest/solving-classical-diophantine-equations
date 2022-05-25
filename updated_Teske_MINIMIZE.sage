@@ -1,24 +1,25 @@
-def teskeMinimizeAtJ(S, B, j, R, primesPossiblyDividingGroupOrder):
+def teskeMinimizeAtJ(S, B, j, goth_p, N, primesPossiblyDividingGroupOrder):
     '''
     INPUT:
         S - a list of generators of the subgroup
         B - a list of relations (lower triangular), the j-1 first of which are minimal
         j - an integer between 0 and #S-1
-        R - the underlying ring, isomorphic to ZZ/N for some N.
+        goth_p - the place we are considering
+        N - the power of goth_p we are quotienting by
         primesPossiblyDividingGroupOrder - any upper bound for the maximal prime divisor in phi(R) = phi(N).
 
     OUTPUT:
         B', same as B, except that the j'th relation is replaced by a j'th-minimal one.
     '''
 
-    def findX(k,S,B,j,R,x,c,gcdP0Bkk,p0,m):
+    def findX(k,S,B,j,goth_p, N,x,c,gcdP0Bkk,p0,m):
         if k==-1:
             #check whether the x-vector is a relation:
-
-            StoX = R.coerce(1)
+            K = goth_p.number_field()
+            StoX = 1
             for i in range(j+1):
-                StoX = StoX * R.coerce(S[i])^x[i]
-            return StoX == R.coerce(1)
+                StoX = StoX * K.coerce(S[i])**x[i]
+            return (StoX - 1) >= N
 
         else:
             if gcdP0Bkk[k]==0:
@@ -54,7 +55,7 @@ def teskeMinimizeAtJ(S, B, j, R, primesPossiblyDividingGroupOrder):
                     m[k] = m[k] - m[n]*B[n][k]
                 m[k] = ZZ(m[k] / B[k][k])
 
-                if findX(k-1,S,B,j,R,x,c,gcdP0Bkk,p0,m):
+                if findX(k-1,S,B,j,goth_P,N,x,c,gcdP0Bkk,p0,m):
                     return True
 
             return False
@@ -96,7 +97,7 @@ def teskeMinimizeAtJ(S, B, j, R, primesPossiblyDividingGroupOrder):
         x = range(j+1)
         x[j] = ZZ(B[j][j]/p0)
 
-        if findX(j-1,S,B,j,R,x,c,gcdP0Bkk,p0,[a for a in range(j)]):
+        if findX(j-1,S,B,j,goth_P, N,x,c,gcdP0Bkk,p0,[a for a in range(j)]):
             #smaller relation x has been found:
             for i in range(j+1):
                 B[j][i] = x[i]
@@ -108,12 +109,13 @@ def teskeMinimizeAtJ(S, B, j, R, primesPossiblyDividingGroupOrder):
 
     return B
 
-def teskeMinimize(S, B, R, primesPossiblyDividingGroupOrder):
+def teskeMinimize(S, B, goth_P, N, primesPossiblyDividingGroupOrder):
     '''
     INPUT:
         S - a list of generators of a subgroup of R
         B - a list of |S| relations (lower triangular)
-        R - the underlying ring, isomorphic to ZZ/N for some N.
+        goth_p - the place we are considering
+        N - the power of goth_p we are quotienting by
         primesPossiblyDividingGroupOrder - any upper bound for the
             maximal prime divisor in phi(R) = phi(N).
 
@@ -123,7 +125,7 @@ def teskeMinimize(S, B, R, primesPossiblyDividingGroupOrder):
     '''
 
     for j in range(len(B)):
-        B = teskeMinimizeAtJ(S, B, j, R, primesPossiblyDividingGroupOrder)
+        B = teskeMinimizeAtJ(S, B, j, goth_P, N, primesPossiblyDividingGroupOrder)
     return B
 
 #Actually not needed anymore, can use Teske directly instead:
