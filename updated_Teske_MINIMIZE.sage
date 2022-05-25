@@ -26,7 +26,7 @@ def teskeMinimizeAtJ(S, B, j, R, primesPossiblyDividingGroupOrder):
 
             #try all possible values for x[k] and go deeper into the recursion:
 
-            #m = range(j)
+            #m = [a for a in range(j)]
             #for i in range(j-1,k,-1):     #i=j-1...k+1
             #    m[i] = B[j][i] - p0*x[i]
             #    for n in range(i+1,j):
@@ -85,7 +85,7 @@ def teskeMinimizeAtJ(S, B, j, R, primesPossiblyDividingGroupOrder):
             return B
         p0 = P[0]
 
-        c = range(j)
+        c = [a for a in range(j)]
         for k in range(j):
             c[k] = xgcd(p0,B[k][k])[1]   #a number ck such that gcd(p0,Bkk) = p*ck + Bkk*ak
 
@@ -96,7 +96,7 @@ def teskeMinimizeAtJ(S, B, j, R, primesPossiblyDividingGroupOrder):
         x = range(j+1)
         x[j] = ZZ(B[j][j]/p0)
 
-        if findX(j-1,S,B,j,R,x,c,gcdP0Bkk,p0,range(j)):
+        if findX(j-1,S,B,j,R,x,c,gcdP0Bkk,p0,[a for a in range(j)]):
             #smaller relation x has been found:
             for i in range(j+1):
                 B[j][i] = x[i]
@@ -143,7 +143,7 @@ def findMinimalRelations(S,p,n):
     if S.count(p)>0:
         S.remove(p)
     l = len(S)
-    B = range(l)
+    B = [a for a in range(l)]
     for i in range(l):
         B[i] = zero_vector(l).list()
         B[i][i] = exponentOfXmodPtoTheN(S[i],p,n)
