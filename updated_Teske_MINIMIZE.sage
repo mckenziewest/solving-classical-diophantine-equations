@@ -1,78 +1,82 @@
 def teskeMinimizeAtJ(S, B, j, goth_p, N, primesPossiblyDividingGroupOrder):
     '''
-    INPUT:
+    INPUT::
         S - a list of generators of the subgroup
         B - a list of relations (lower triangular), the j-1 first of which are minimal
         j - an integer between 0 and #S-1
-        goth_p - the place we are considering
-        N - the power of goth_p we are quotienting by
+        goth_p - the place we're considering
+        n - the power of goth_p we are quotienting by
         primesPossiblyDividingGroupOrder - any upper bound for the maximal prime divisor in phi(R) = phi(N).
 
-    OUTPUT:
+    OUTPUT::
         B', same as B, except that the j'th relation is replaced by a j'th-minimal one.
+
+    AUTHORS:
+    Matchske (2018 ,https://github.com/bmatschke/solving-classical-diophantine-equations/blob/master/s-unit.sage)
+    AKMRVW (2022)
     '''
 
-    def findX(k,S,B,j,goth_p, N,x,c,gcdP0Bkk,p0,m):
+    def findX(k,S,B,j, goth_p, N,x,c,gcdP0Bkk,p0,m):
         if k==-1:
             #check whether the x-vector is a relation:
             K = goth_p.number_field()
             StoX = 1
             for i in range(j+1):
-                StoX = StoX * K.coerce(S[i])**x[i]
-            return (StoX - 1) >= N
+                StoX = StoX * (K(S[i])**x[i])
+            return (StoX - 1).valuation(goth_p) >= N
 
         else:
             if gcdP0Bkk[k]==0:
-                print("Some error occured. Parameters k,S,j,R,x,c,gcdP0Bkk:",k,S,j,R,x,c,gcdPoBkk)
+                print("Some error occured. Parameters k,S,j,R,x,c,gcdP0Bkk:",k,S,B,j, goth_p, n,x,c,gcdP0Bkk,p0,m)
 
             #try all possible values for x[k] and go deeper into the recursion:
 
-            #m = [a for a in range(j)]
+            #m = range(j);
             #for i in range(j-1,k,-1):     #i=j-1...k+1
-            #    m[i] = B[j][i] - p0*x[i]
+            #    m[i] = B[j][i] - p0*x[i];
             #    for n in range(i+1,j):
-            #        m[i] = m[i] - m[n]*B[n][k]    # Important: I think here B[n][k] must be replaced by B[n][i]! (I think Teske's paper has a typo here.)
-            #    m[i] = ZZ(m[i] / B[i][i])
+            #        m[i] = m[i] - m[n]*B[n][k];    # Important: I think here B[n][k] must be replaced by B[n][i]! (I think Teske's paper has a typo here.)
+            #    m[i] = ZZ(m[i] / B[i][i]);
 
-            L = B[j][k]
+            L = B[j][k];
             for i in range(k+1,j):
                 L = L - m[i]*B[i][k]
 
             if not (L in ZZ):
-                print("Some error occured. Parameters p0,L,m,k,S,B,j,R,x,c,gcdP0Bkk:",p0,L,m,k,S,B,j,R,x,c,gcdPoBkk)
+                print ("Some error occured. Parameters p0,L,m,k,S,B,j,R,x,c,gcdP0Bkk:",k,S,B,j, goth_p, n,x,c,gcdP0Bkk,p0,m)
 
             if L%gcdP0Bkk[k] != 0:
                 return False
             L = ZZ(L / gcdP0Bkk[k]) % B[k][k]
-            Rt = ZZ(B[k][k]/gcdP0Bkk[k])
+            Rt = B[k][k] // gcdP0Bkk[k]
 
             for rk in range(0,gcdP0Bkk[k]):
-                x[k] = (L*c[k] + Rt*rk) % B[k][k]
+                x[k] = (L*c[k] + Rt*rk) % B[k][k];
                 if not(x[k].is_integral()):
                     print("Error!")
                 m[k] = B[j][k]-p0*x[k]
                 for n in range(k+1,j):
                     m[k] = m[k] - m[n]*B[n][k]
-                m[k] = ZZ(m[k] / B[k][k])
+                m[k] = m[k] // B[k][k]
 
-                if findX(k-1,S,B,j,goth_P,N,x,c,gcdP0Bkk,p0,m):
+                if findX(k-1,S,B,j, goth_p, N,x,c,gcdP0Bkk,p0,m):
                     return True
 
-            return False
+            return false
 
     #The following takes way too long for large primes in S:
-    #P = []        #primes that may reduce b_{jj}
+    #P = [];        #primes that may reduce b_{jj}
     #for i in prime_range(maxP+1):
     #    if B[j][j]%i == 0:
-    #        P.append(i)
+    #        P.append(i);
 
     #So let's do it quicker using more knowledge about the underlying group:
-    P = [] #primes that may reduce b_{jj}
+    P = []; #primes that may reduce b_{jj}
     for p in primesPossiblyDividingGroupOrder:
         if B[j][j]%p == 0:
             P.append(p)
 
-    #print(S,j,primesPossiblyDividingGroupOrder, P)
+    #print S,j,primesPossiblyDividingGroupOrder, P;
 
     while True:
         #Reduce j'th relation by all previous ones:
@@ -80,7 +84,7 @@ def teskeMinimizeAtJ(S, B, j, goth_p, N, primesPossiblyDividingGroupOrder):
             f = round(B[j][k]/B[k][k])
             if f != 0:
                 for i in range(j+1):
-                    B[j][i] = B[j][i] - f*B[k][i]
+                    B[j,i] = B[j][i] - f*B[k][i]
 
         if len(P) == 0:        #no primes left for reduction
             return B
@@ -88,19 +92,19 @@ def teskeMinimizeAtJ(S, B, j, goth_p, N, primesPossiblyDividingGroupOrder):
 
         c = [a for a in range(j)]
         for k in range(j):
-            c[k] = xgcd(p0,B[k][k])[1]   #a number ck such that gcd(p0,Bkk) = p*ck + Bkk*ak
+            c[k] = xgcd(p0,B[k][k])[1]    #a number ck such that gcd(p0,Bkk) = p*ck + Bkk*ak
 
-        gcdP0Bkk = range(j)
+        gcdP0Bkk = [a for a in range(j)]
         for k in range(j):
             gcdP0Bkk[k] = gcd(p0,B[k][k])
 
-        x = range(j+1)
+        x = [a for a in range(j+1)]
         x[j] = ZZ(B[j][j]/p0)
 
-        if findX(j-1,S,B,j,goth_P, N,x,c,gcdP0Bkk,p0,[a for a in range(j)]):
+        if findX(j-1,S,B,j,goth_p,N,x,c,gcdP0Bkk,p0,[a for a in range(j)]):
             #smaller relation x has been found:
             for i in range(j+1):
-                B[j][i] = x[i]
+                B[j,i] = x[i]
             if x[j]%p0 != 0:
                 P.remove(p0)
         else:
@@ -109,24 +113,25 @@ def teskeMinimizeAtJ(S, B, j, goth_p, N, primesPossiblyDividingGroupOrder):
 
     return B
 
-def teskeMinimize(S, B, goth_P, N, primesPossiblyDividingGroupOrder):
+def teskeMinimize(S, B, goth_p, n):
     '''
     INPUT:
         S - a list of generators of a subgroup of R
         B - a list of |S| relations (lower triangular)
-        goth_p - the place we are considering
-        N - the power of goth_p we are quotienting by
-        primesPossiblyDividingGroupOrder - any upper bound for the
-            maximal prime divisor in phi(R) = phi(N).
-
+        goth_p - place we're looking at
+        n - power of goth_p we're quotienting by
     OUTPUT:
         B', same as B, except that for each j, the j'th relation is
             replaced by a j'th-minimal one.
     '''
+    B_copy = copy(B)
 
-    for j in range(len(B)):
-        B = teskeMinimizeAtJ(S, B, j, goth_P, N, primesPossiblyDividingGroupOrder)
-    return B
+    q = int(goth_p.norm())
+    prime_divisors = (q**min(1,n-1)*(q-1)).prime_divisors()
+    for j in range(len(B.rows())):
+        B_copy = teskeMinimizeAtJ(S, B_copy, j, goth_p, n,prime_divisors)
+    return B_copy
+
 
 #Actually not needed anymore, can use Teske directly instead:
 def findMinimalRelations(S,p,n):
