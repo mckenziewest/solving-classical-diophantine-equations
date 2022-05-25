@@ -22,7 +22,7 @@ def teskeMinimizeAtJ(S, B, j, R, primesPossiblyDividingGroupOrder):
 
         else:
             if gcdP0Bkk[k]==0:
-                print "Some error occured. Parameters k,S,j,R,x,c,gcdP0Bkk:",k,S,j,R,x,c,gcdPoBkk;
+                print("Some error occured. Parameters k,S,j,R,x,c,gcdP0Bkk:",k,S,j,R,x,c,gcdPoBkk);
 
             #try all possible values for x[k] and go deeper into the recursion:
 
@@ -38,7 +38,7 @@ def teskeMinimizeAtJ(S, B, j, R, primesPossiblyDividingGroupOrder):
                 L = L - m[i]*B[i][k];
 
             if not (L in ZZ):
-                print "Some error occured. Parameters p0,L,m,k,S,B,j,R,x,c,gcdP0Bkk:",p0,L,m,k,S,B,j,R,x,c,gcdPoBkk;
+                print("Some error occured. Parameters p0,L,m,k,S,B,j,R,x,c,gcdP0Bkk:",p0,L,m,k,S,B,j,R,x,c,gcdPoBkk);
 
             if L%gcdP0Bkk[k] != 0:
                 return False;
@@ -48,7 +48,7 @@ def teskeMinimizeAtJ(S, B, j, R, primesPossiblyDividingGroupOrder):
             for rk in range(0,gcdP0Bkk[k]):
                 x[k] = (L*c[k] + Rt*rk) % B[k][k];
                 if not(x[k].is_integral()):
-                    print "Error!";
+                    print("Error!");
                 m[k] = B[j][k]-p0*x[k];
                 for n in range(k+1,j):
                     m[k] = m[k] - m[n]*B[n][k];
@@ -71,7 +71,7 @@ def teskeMinimizeAtJ(S, B, j, R, primesPossiblyDividingGroupOrder):
         if B[j][j]%p == 0:
             P.append(p);
 
-    #print S,j,primesPossiblyDividingGroupOrder, P;
+    #print(S,j,primesPossiblyDividingGroupOrder, P);
 
     while True:
         #Reduce j'th relation by all previous ones:
@@ -138,7 +138,7 @@ def findMinimalRelations(S,p,n):
         B - a list of minimal relations
     '''
 
-    #print "phi(p^n) =",p^(n-1)*(p-1);
+    #print("phi(p^n) =",p^(n-1)*(p-1));
 
     if S.count(p)>0:
         S.remove(p);
@@ -148,8 +148,8 @@ def findMinimalRelations(S,p,n):
         B[i] = zero_vector(l).list();
         B[i][i] = exponentOfXmodPtoTheN(S[i],p,n);
     R = IntegerModRing(p^n);
-    #print B[0][0];
-    #print R.coerce(1);
+    #print(B[0][0]);
+    #print(R.coerce(1));
 
     primesPossiblyDividingGroupOrder = primes_divide(R.unit_group_order());
 
